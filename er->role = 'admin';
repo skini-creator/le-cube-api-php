@@ -1,0 +1,18 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#6119
+    [34mid[39m: [35m2[39m,
+    [34mname[39m: "[32mSkini Le Cube[39m",
+    [34memail[39m: "[32mskini@lecube.com[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$cM8tnvCz1dn3LGOTb..KnuscG1M5YC1KnaIDW1nFfzSLRr4eSdzvm[39m",
+    [34mphone[39m: [36mnull[39m,
+    [34mavatar[39m: [36mnull[39m,
+    [34mbio[39m: [36mnull[39m,
+    [34mrole[39m: "[32mcustomer[39m",
+    [34mstatus[39m: "[32mactive[39m",
+    #[33mremember_token[39m: [36mnull[39m,
+    [34mlast_login_at[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2026-01-30 03:56:40[39m",
+    [34mupdated_at[39m: "[32m2026-01-30 03:56:40[39m",
+    [34mdeleted_at[39m: [36mnull[39m,
+  }
+
