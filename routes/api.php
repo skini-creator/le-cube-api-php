@@ -37,7 +37,7 @@ Route::prefix('plats')->group(function () {
 // ========================================
 
 // Note : Changement de 'auth:api' en 'auth:sanctum' pour correspondre à tes migrations
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
     
     // Profil Client
     Route::get('mon-profil', [AuthController::class, 'me']);
