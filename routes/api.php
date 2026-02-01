@@ -11,73 +11,67 @@ use App\Http\Controllers\Api\AdminController;
 
 /*
 |--------------------------------------------------------------------------
-| API "Le Cube" - Routes Complètes et Corrigées
+| API "Le Cube" - Routes Globales (Architecture JWT)
 |--------------------------------------------------------------------------
 */
 
 // ========================================
-// ROUTES PUBLIQUES (Ouvertes à tous)
+// 1. ROUTES PUBLIQUES
 // ========================================
 
-// Authentification Clients
 Route::prefix('clients')->group(function () {
-    Route::post('inscription', [AuthController::class, 'register']); // POST /api/clients/inscription
-    Route::post('connexion', [AuthController::class, 'login']);      // POST /api/clients/connexion
+    Route::post('inscription', [AuthController::class, 'register']);
+    Route::post('connexion', [AuthController::class, 'login']);
 });
 
-// Catalogue des Plats
 Route::prefix('plats')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);            // GET /api/plats
-    Route::get('/{id}', [ProductController::class, 'show']);         // GET /api/plats/{id}
-    Route::get('/categories', [CategoryController::class, 'index']); // GET /api/plats/categories
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/{id}', [ProductController::class, 'show']);
 });
 
 // ========================================
-// ROUTES AUTHENTIFIÉES (Client Connecté)
+// 2. ROUTES PROTÉGÉES (JWT Guard)
 // ========================================
 
-// Note : Changement de 'auth:api' en 'auth:sanctum' pour correspondre à tes migrations
 Route::middleware('auth:api')->group(function () {
     
-    // Profil Client
+    // Profil utilisateur & Adresses (Pour corriger l'erreur 422)
     Route::get('mon-profil', [AuthController::class, 'me']);
     Route::post('deconnexion', [AuthController::class, 'logout']);
+    
+    Route::prefix('adresses')->group(function () {
+        Route::post('/', [AuthController::class, 'addAddress']); // ✅ Nouvelle route ajoutée
+    });
 
     // Gestion du Panier (US-T3)
     Route::prefix('panier')->group(function () {
-        Route::get('/', [CartController::class, 'index']);           // GET /api/panier
-        Route::post('/ajouter', [CartController::class, 'add']);     // POST /api/panier/ajouter
-        Route::delete('/vider', [CartController::class, 'clear']);   // DELETE /api/panier/vider
+        Route::get('/', [CartController::class, 'index']);
+        Route::post('/ajouter', [CartController::class, 'add']);
+        Route::delete('/vider', [CartController::class, 'clear']);
     });
 
     // Gestion des Commandes (US-T2)
     Route::prefix('commandes')->group(function () {
-        Route::get('/', [OrderController::class, 'index']);          // GET /api/commandes
-        Route::post('/valider', [OrderController::class, 'store']);  // POST /api/commandes/valider
+        Route::get('/', [OrderController::class, 'index']);
+        Route::post('/valider', [OrderController::class, 'store']);
     });
 
     // ========================================
-    // ROUTES ADMINISTRATION (Admin uniquement)
+    // 3. ROUTES ADMIN (Middleware Role + JWT)
     // ========================================
     
     Route::middleware('role:admin')->prefix('admin')->group(function () {
-        // Dashboard
         Route::get('tableau-de-bord', [AdminController::class, 'dashboard']);
         Route::get('stats-ventes', [AdminController::class, 'statistics']);
         
-        // Gestion des Catégories (Route que nous venons d'ajouter)
-        Route::post('categories', [CategoryController::class, 'store']); // POST /api/admin/categories
-        
-        // Gestion des produits (Plats)
-        Route::post('plats', [ProductController::class, 'store']);      // POST /api/admin/plats
-        Route::put('plats/{id}', [ProductController::class, 'update']); // PUT /api/admin/plats/{id}
-        
-        // Gestion des statuts de commandes
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::post('plats', [ProductController::class, 'store']);
+        Route::put('plats/{id}', [ProductController::class, 'update']);
         Route::put('commandes/{id}/statut', [AdminController::class, 'updateOrderStatus']);
     });
 });
 
-// Fallback pour les erreurs de frappe
 Route::fallback(function () {
     return response()->json(['message' => 'Route non trouvée.'], 404);
 });

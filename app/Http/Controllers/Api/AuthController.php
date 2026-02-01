@@ -9,11 +9,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB; // ✅ Ajouté pour la gestion des adresses
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-
     /**
      * Register a new user
      */
@@ -63,6 +63,52 @@ class AuthController extends Controller
         }
 
         return $this->respondWithToken($token);
+    }
+
+    /**
+     * ✅ AJOUT : Enregistrer une nouvelle adresse pour débloquer la commande
+     */
+    public function addAddress(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'type' => 'required|in:billing,shipping',
+            'address_label' => 'required|string|max:50', // ex: Maison, Bureau
+            'address_line_1' => 'required|string',
+            'address_line_2' => 'nullable|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'postal_code' => 'required|string',
+            'country' => 'string',
+            'phone' => 'required|string',
+            'is_default' => 'boolean'
+        ]);
+
+        // On utilise l'ID de l'utilisateur authentifié par le Token JWT
+        $addressId = DB::table('addresses')->insertGetId([
+            'user_id' => Auth::id(),
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'type' => $validated['type'],
+            'address_label' => $validated['address_label'],
+            'address_line_1' => $validated['address_line_1'],
+            'address_line_2' => $validated['address_line_2'] ?? null,
+            'city' => $validated['city'],
+            'state' => $validated['state'],
+            'postal_code' => $validated['postal_code'],
+            'country' => $validated['country'] ?? 'CM',
+            'phone' => $validated['phone'],
+            'is_default' => $validated['is_default'] ?? false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Adresse enregistrée avec succès !',
+            'address_id' => $addressId // C'est cet ID qu'il faudra mettre dans la commande
+        ], 201);
     }
 
     /**
